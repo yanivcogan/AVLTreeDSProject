@@ -170,10 +170,10 @@ public class AVLTree {
 		public void setParent(IAVLNode node); //sets parent
 		public IAVLNode getParent(); //returns the parent (if there is no parent return null)
 		public boolean isRealNode(); // Returns True if this is a non-virtual AVL node
-    public void setSubtreeSize(int size); // sets the number of real nodes in this node's subtree
-    public int getSubtreeSize(); // Returns the number of real nodes in this node's subtree (Should be implemented in O(1))
-    public void setHeight(int height); // sets the height of the node
-    public int getHeight(); // Returns the height of the node (-1 for virtual nodes)
+        public void setSubtreeSize(int size); // sets the number of real nodes in this node's subtree
+        public int getSubtreeSize(); // Returns the number of real nodes in this node's subtree (Should be implemented in O(1))
+        public void setHeight(int height); // sets the height of the node
+        public int getHeight(); // Returns the height of the node (-1 for virtual nodes)
 	}
 
    /**
@@ -186,54 +186,54 @@ public class AVLTree {
    * (It must implement IAVLNode)
    */
   public class AVLNode implements IAVLNode{
-		public int getKey()
-		{
-			return 42; // to be replaced by student code
-		}
-		public String getValue()
-		{
-			return null; // to be replaced by student code
-		}
-		public void setLeft(IAVLNode node)
-		{
-			return null; // to be replaced by student code
-		}
-		public IAVLNode getLeft()
-		{
-			return null; // to be replaced by student code
-		}
-		public void setRight(IAVLNode node)
-		{
-			return null; // to be replaced by student code
-		}
-		public IAVLNode getRight()
-		{
-			return null; // to be replaced by student code
-		}
-		public void setParent(IAVLNode node)
-		{
-			return null; // to be replaced by student code
-		}
-		public IAVLNode getParent()
-		{
-			return null; // to be replaced by student code
-		}
-		// Returns True if this is a non-virtual AVL node
-		public boolean isRealNode()
-		{
-			return true; // to be replaced by student code
-		}
+	public int getKey()
+	{
+		return 42; // to be replaced by student code
+	}
+	public String getValue()
+	{
+		return null; // to be replaced by student code
+	}
+	public void setLeft(IAVLNode node)
+	{
+		// to be replaced by student code
+	}
+	public IAVLNode getLeft()
+	{
+		return null; // to be replaced by student code
+	}
+	public void setRight(IAVLNode node)
+	{
+		// to be replaced by student code
+	}
+	public IAVLNode getRight()
+	{
+		return null; // to be replaced by student code
+	}
+	public void setParent(IAVLNode node)
+	{
+		// to be replaced by student code
+	}
+	public IAVLNode getParent()
+	{
+		return null; // to be replaced by student code
+	}
+	// Returns True if this is a non-virtual AVL node
+	public boolean isRealNode()
+	{
+		return true; // to be replaced by student code
+	}
     public void setSubtreeSize(int size)
     {
-      return null; // to be replaced by student code
+      // to be replaced by student code
     }
-		public int getSubtreeSize()
-		{
-			return 42; // to be replaced by student code
-		}
+	public int getSubtreeSize()
+	{
+		return 42; // to be replaced by student code
+	}
     public void setHeight(int height)
     {
-      return null; // to be replaced by student code
+      // to be replaced by student code
     }
     public int getHeight()
     {
