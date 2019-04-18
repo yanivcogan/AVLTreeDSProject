@@ -74,7 +74,11 @@ public class Main {
 
     private static void TestInsert() {
         AVLTree tree = new AVLTree();
-        int items[] = {15,10,22,4,11,20,24,2,7,12,18,1,6,8,5};
+ //       int items[] = {15,10,22,4,11,20,24,2,7,12,18,1,6,8,5};
+ //       for(int i = 0; i < items.length; ++i) {
+ //           tree.insert(items[i], "miao");
+ //       }
+        int items[] = {1, 3, 2, 4};
         for(int i = 0; i < items.length; ++i) {
             tree.insert(items[i], "miao");
         }
