@@ -496,7 +496,7 @@ public class AVLTree {
             if(key == VIRTUAL_NODE){
                 return -1;
             }
-            return 1 + Math.max(this.left.calcHeight(), this.right.calcHeight());
+            return 1 + Math.max(this.left.getHeight(), this.right.getHeight());
         }
 
         //used for recalculating height and size (and later sum of keys) after changes in the node's children.
