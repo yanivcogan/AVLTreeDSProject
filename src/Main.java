@@ -74,17 +74,48 @@ public class Main {
         }
     }
 
+    //checks that heights are consistent [assuming the height in root is correct], |BF| is always <= 1,
+    // and node's parent pointer refers their actual parent
+
+    private static void TestConsistency(AVLTree tree) {
+        if(tree == null || tree.root == null)
+        {
+            return;
+        }
+        ArrayList<AVLTree.AVLNode> lst = tree.getArray();
+        for(int i = 0; i < lst.size(); ++i)
+        {
+            AVLTree.AVLNode node = lst.get(i);
+            if(node.isRealNode())
+            {
+                if(node.left.parent != node)
+                {
+                    System.out.println("parent inconsistency between keys " +  node.key + "," + node.left.key);
+                }
+                if(node.right.parent != node)
+                {
+                    System.out.println("parent inconsistency between keys " +  node.key + "," + node.right.key);
+                }
+                if(Math.abs(tree.calcBF(node)) > 1)
+                {
+                    System.out.println("bad bf on key " + node.key);
+                }
+                if(node.height != Math.max(node.right.height, node.left.height) + 1)
+                {
+                    System.out.println("bad height on key " + node.key);
+                }
+            }
+        }
+    }
     private static void TestInsert() {
         AVLTree tree = new AVLTree();
- //       int items[] = {15,10,22,4,11,20,24,2,7,12,18,1,6,8,5};
- //       for(int i = 0; i < items.length; ++i) {
- //           tree.insert(items[i], "miao");
- //       }
-        int items[] = {1, 3, 2, 4};
+        int items[] = {15,10,22,4,11,20,24,2,7,12,18,1,6,8,5};
         for(int i = 0; i < items.length; ++i) {
             tree.insert(items[i], "miao");
         }
-        System.out.println(tree);
+        TestConsistency(tree);
+        //System.out.println(tree.root.print());
+        //print(tree);
     }
     private static void TestMinMax() {
         AVLTree tree = new AVLTree();

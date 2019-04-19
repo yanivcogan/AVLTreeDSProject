@@ -103,13 +103,11 @@ public class AVLTree {
     private void insertChild(AVLNode parent, AVLNode newNode)
     {
         if (parent.getKey() > newNode.getKey()) {
-            newNode.left = parent.left;
-            parent.left = newNode;
+            setLeftChild(newNode, parent.left);
+            setLeftChild(parent, newNode);
         }else{
             setRightChild(newNode, parent.right);
-            setRightChild(parent, parent.right);
-            newNode.right = parent.right;
-            parent.right = newNode;
+            setRightChild(parent, newNode);
         }
         newNode.update();
     }
@@ -202,7 +200,7 @@ public class AVLTree {
         return 1;
     }
 
-    private int calcBF(AVLNode node)
+    public int calcBF(AVLNode node)
     {
         if(!node.isRealNode())
         {
@@ -366,7 +364,6 @@ public class AVLTree {
         getArrayRec(root, arr);
         return arr;
     }
-
 
     /**
      * public interface IAVLNode
