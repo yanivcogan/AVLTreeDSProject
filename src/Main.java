@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main {
 
@@ -11,6 +12,7 @@ public class Main {
         tree.insert(2, "miao");
         tree.insert(1, "miao");
         AVLTree.AVLNode node = tree.root;
+        System.out.println(tree);
         assert node.key == 2;
         assert node.left.key == 1;
         assert node.right.key == 3;
@@ -82,14 +84,40 @@ public class Main {
         for(int i = 0; i < items.length; ++i) {
             tree.insert(items[i], "miao");
         }
-        print(tree);
+        System.out.println(tree);
     }
-        public static void main(String[] args)
+    private static void TestMinMax() {
+        AVLTree tree = new AVLTree();
+        int items[] = {1, 3, 2, 4};
+        for(int i = 0; i < items.length; ++i) {
+            tree.insert(items[i], "miao " + i);
+        }
+        String min = tree.min();
+        assert tree.max().equals("miao 3");
+        assert tree.min().equals("miao 0");
+    }
+    private static void testInOrder(){
+        AVLTree tree = new AVLTree();
+        int items[] = {1, 3, 2, 4};
+        for(int i = 0; i < items.length; ++i) {
+            tree.insert(items[i], "miao " + i);
+        }
+        int [] keysInOrder = {1, 2, 3, 4};
+        assert Arrays.equals(tree.keysToArray(), keysInOrder);
+        String [] valuesInOrder = {"miao 0", "miao 2", "miao 1", "miao 3"};
+        assert Arrays.equals(tree.infoToArray(), valuesInOrder);
+        System.out.println(Arrays.equals(tree.infoToArray(), valuesInOrder));
+        System.out.println(Arrays.toString(tree.keysToArray()));
+        System.out.println(Arrays.toString(tree.infoToArray()));
+    }
+    public static void main(String[] args)
     {
         TestBasicInsertionAndLL();
         TestLR();
         TestRR();
         TestRL();
         TestInsert();
+        TestMinMax();
+        testInOrder();
     }
 }
