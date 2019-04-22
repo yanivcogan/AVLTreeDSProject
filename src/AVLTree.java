@@ -56,7 +56,10 @@ public class AVLTree {
         IAVLNode itr = find(k);
         return itr.getKey() == k ? itr.getValue() : null;
     }
-
+    //TODO this is a temporary function used for testing - delete it later
+    public AVLNode searchNode(int k){
+        return (AVLNode)find(k);
+    };
     /**
      * public int insert(int k, String i)
      * <p>
@@ -269,6 +272,67 @@ public class AVLTree {
      */
     public String max() {
         return max.value;
+    }
+
+    /**
+     * @param node - the root of the subtree
+     * @return the node with the minimal key in the subtree originating from the input node
+     * returns the node if given a virtual node
+     */
+    private static AVLNode minInSubtree(AVLNode node){
+        if(node == null)
+            return null;
+        if(node.getKey() == AVLNode.VIRTUAL_NODE)
+            return node;
+        AVLNode curr = node;
+        while(curr.left.getKey() != AVLNode.VIRTUAL_NODE)
+            curr = curr.left;
+        return curr;
+    }
+    /**
+     * @param node - the root of the subtree
+     * @return the node with the maximal key in the subtree originating from the input node
+     * returns the node if given a virtual node
+     */
+    private static AVLNode maxInSubtree(AVLNode node){
+        if(node == null)
+            return null;
+        if(node.getKey() == AVLNode.VIRTUAL_NODE)
+            return node;
+        AVLNode curr = node;
+        while(curr.right.getKey() != AVLNode.VIRTUAL_NODE)
+            curr = curr.right;
+        return curr;
+    }
+    public static AVLNode successor(AVLNode node) {
+        if(node.right.getKey() != AVLNode.VIRTUAL_NODE)
+            return AVLTree.minInSubtree(node.right);
+        //if the node doesn't have right child, search upwards, using two nodes
+        //one node would suffice in theory, the decision to use two has to do with code clarity
+        AVLNode tempNode = node;
+        AVLNode tempParent = tempNode.parent;
+        //ascend left-wards
+        while(tempParent != null && tempParent.right == tempNode){
+            tempNode = tempParent;
+            tempParent = tempNode.parent;
+        }
+        return tempParent;
+
+    }
+    public static AVLNode predecesoor(AVLNode node) {
+        if(node.left.getKey() != AVLNode.VIRTUAL_NODE)
+            return AVLTree.maxInSubtree(node.left);
+        //if the node doesn't have right child, search upwards, using two nodes
+        //one node would suffice in theory, the decision to use two has to do with code clarity
+        AVLNode tempNode = node;
+        AVLNode tempParent = tempNode.parent;
+        //ascend left-wards
+        while(tempParent != null && tempParent.left == tempNode){
+            tempNode = tempParent;
+            tempParent = tempNode.parent;
+        }
+        return tempParent;
+
     }
 
     private AVLNode[] inOrderScan(){

@@ -141,6 +141,22 @@ public class Main {
         System.out.println(Arrays.toString(tree.keysToArray()));
         System.out.println(Arrays.toString(tree.infoToArray()));
     }
+
+    private static void testSuccessorPredecessor(){
+        AVLTree tree = new AVLTree();
+        int items[] = {3, 11, 4, 16, 5, 19, 13, 1, 15, 10, 18, 12, 20, 14, 6, 9, 8, 2, 17, 7};
+        for(int i = 0; i < items.length; ++i) {
+            tree.insert(items[i], "test " + items[i]);
+        }
+        System.out.println(tree);
+        for(int i = 1; i <= items.length - 1; ++i) {
+            assert AVLTree.successor(tree.searchNode(i)).getKey() == i+1;
+        }
+        for(int i = 2; i <= items.length; ++i) {
+            assert AVLTree.predecesoor(tree.searchNode(i)).getKey() == i-1;
+        }
+    }
+
     public static void main(String[] args)
     {
         TestBasicInsertionAndLL();
@@ -150,5 +166,6 @@ public class Main {
         TestInsert();
         TestMinMax();
         testInOrder();
+        testSuccessorPredecessor();
     }
 }
