@@ -148,13 +148,28 @@ public class Main {
         for(int i = 0; i < items.length; ++i) {
             tree.insert(items[i], "test " + items[i]);
         }
-        System.out.println(tree);
         for(int i = 1; i <= items.length - 1; ++i) {
             assert AVLTree.successor(tree.searchNode(i)).getKey() == i+1;
         }
         for(int i = 2; i <= items.length; ++i) {
             assert AVLTree.predecesoor(tree.searchNode(i)).getKey() == i-1;
         }
+    }
+    private static void testDeletion(){
+        AVLTree tree = new AVLTree();
+        int items[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        for(int i = 0; i < items.length; ++i) {
+            tree.insert(items[i], "test " + items[i]);
+        }
+        //root deletion
+        tree.delete(4);
+        //leaf deletion
+        tree.delete(3);
+        //single child deletion
+        tree.delete(9);
+        //double child deletion
+        tree.delete(8);
+        TestConsistency(tree);
     }
 
     public static void main(String[] args)
@@ -167,5 +182,6 @@ public class Main {
         TestMinMax();
         testInOrder();
         testSuccessorPredecessor();
+        testDeletion();
     }
 }

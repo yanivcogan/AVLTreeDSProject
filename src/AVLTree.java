@@ -215,7 +215,7 @@ public class AVLTree {
     private int fixUpward(AVLNode newNode) {
         AVLNode itr = newNode;
         int bf;
-        boolean rebalance = false;
+        int rebalanceCount = 0;
         while(itr != null)
         {
             AVLNode temp = itr.parent;
@@ -223,12 +223,12 @@ public class AVLTree {
             bf = calcBF(itr);
             if(bf > 1 || bf < -1)
             {
-                rebalance = true;
+                rebalanceCount++;
                 Balance(itr);
             }
             itr = temp;
         }
-        return rebalance ? 1 : 0;
+        return rebalanceCount;
     }
 
     /**
@@ -240,7 +240,75 @@ public class AVLTree {
      * returns -1 if an item with key k was not found in the tree.
      */
     public int delete(int k) {
-        return 42;    // to be replaced by student code
+        AVLNode nodeToDelete = (AVLNode)find(k);
+        if(nodeToDelete.getKey() != k)
+            return -1;
+        return delete(nodeToDelete);
+    }
+    private int delete(AVLNode node){
+        AVLNode rebalanceFrom;
+        if(node.right.key == AVLNode.VIRTUAL_NODE && node.left.key == AVLNode.VIRTUAL_NODE)
+            rebalanceFrom = deleteLeaf(node);
+        else if(node.right.key == AVLNode.VIRTUAL_NODE || node.left.key == AVLNode.VIRTUAL_NODE)
+            rebalanceFrom = deleteSingleChildNode(node);
+        else
+            rebalanceFrom = deleteDoubleChildNode(node);
+        return fixUpward(rebalanceFrom);
+    }
+
+    /**
+     * deletes a node, under the assumption that it is a leaf
+     * @param node
+     * @return the parent of the node that was deleted
+     * NOTE: this function could be static, and in fact should be, but for that to be the case, AVLNode has to be static as well.
+     * AVLNode should be static (it never uses an instance function of AVLTree), but we wanted to stick with the skeleton file.
+     */
+    private AVLNode deleteLeaf(AVLNode node)
+    {
+        AVLNode parentNode = node.parent;
+        //if case of attempted deletion from an empty tree, return null
+        if(parentNode == null)
+            return null;
+        if(parentNode.left == node)
+            parentNode.left = new AVLNode(parentNode);
+        else
+            parentNode.right = new AVLNode(parentNode);
+        return  parentNode;
+    }
+
+    /**
+     * deletes a node, under the assumption that it only has a single child
+     * @param node
+     * @return the parent of the node that was deleted
+     * NOTE: this function could be static, and in fact should be, but for that to be the case, AVLNode has to be static as well.
+     * AVLNode should be static (it never uses an instance function of AVLTree), but we wanted to stick with the skeleton file.
+     */
+    private AVLNode deleteSingleChildNode(AVLNode node)
+    {
+        AVLNode parentNode = node.parent;
+        AVLNode childNode = node.left.key != AVLNode.VIRTUAL_NODE ? node.left : node.right;
+        if(parentNode.left == node)
+            parentNode.left = childNode;
+        else
+            parentNode.right = childNode;
+        childNode.parent = parentNode;
+        return  parentNode;
+    }
+
+    /**
+     * deletes a node, under the assumption that it has two children
+     * @param node
+     * @return the parent of the node that was deleted
+     * NOTE: this function could be static, and in fact should be, but for that to be the case, AVLNode has to be static as well.
+     * AVLNode should be static (it never uses an instance function of AVLTree), but we wanted to stick with the skeleton file.
+     */
+    private AVLNode deleteDoubleChildNode(AVLNode node)
+    {
+        AVLNode successor = successor(node);
+        delete(successor);
+        node.key = successor.key;
+        node.value = successor.value;
+        return successor.parent;
     }
 
     /**
