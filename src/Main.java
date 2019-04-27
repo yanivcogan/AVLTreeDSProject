@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class Main {
 
@@ -12,7 +11,7 @@ public class Main {
         tree.insert(2, "miao");
         tree.insert(1, "miao");
         AVLTree.AVLNode node = tree.root;
-        System.out.println(tree);
+        //System.out.println(tree);
         assert node.key == 2;
         assert node.left.key == 1;
         assert node.right.key == 3;
@@ -77,35 +76,52 @@ public class Main {
     //checks that heights are consistent [assuming the height in root is correct], |BF| is always <= 1,
     // and node's parent pointer refers their actual parent
 
-    private static void TestConsistency(AVLTree tree) {
+    private static boolean TestConsistency(AVLTree tree) {
         if(tree == null || tree.root == null)
         {
-            return;
+            return true;
         }
+        int realNodes = 0;
         ArrayList<AVLTree.AVLNode> lst = tree.getArray();
         for(int i = 0; i < lst.size(); ++i)
         {
             AVLTree.AVLNode node = lst.get(i);
             if(node.isRealNode())
+            ++realNodes;
             {
                 if(node.left.parent != node)
                 {
                     System.out.println("parent inconsistency between keys " +  node.key + "," + node.left.key);
+                    return false;
                 }
                 if(node.right.parent != node)
                 {
                     System.out.println("parent inconsistency between keys " +  node.key + "," + node.right.key);
+                    return false;
                 }
                 if(Math.abs(tree.calcBF(node)) > 1)
                 {
                     System.out.println("bad bf on key " + node.key);
+                    return false;
                 }
                 if(node.height != Math.max(node.right.height, node.left.height) + 1)
                 {
                     System.out.println("bad height on key " + node.key);
+                    return false;
+                }
+                if(node.size != node.right.size + node.left.size + 1)
+                {
+                    System.out.println("bad size on key " + node.key);
+                    return false;
                 }
             }
         }
+        if(realNodes != lst.size())
+        {
+            System.out.println("did not check all nodes!");
+            return false;
+        }
+        return true;
     }
     private static void TestInsert() {
         AVLTree tree = new AVLTree();
@@ -172,6 +188,216 @@ public class Main {
         TestConsistency(tree);
     }
 
+    private static void testRootDeletion(){
+        AVLTree tree = new AVLTree();
+        tree.delete(10);
+        tree.insert(1, "test1");
+        TestConsistency(tree);
+        tree.delete(1);
+        tree.insert(1, "test1");
+        tree.insert(2, "test1");
+        tree.delete(1);
+        TestConsistency(tree);
+        tree.delete(2);
+        TestConsistency(tree);
+        tree.insert(2, "test1");
+        tree.insert(1, "test1");
+        tree.delete(2);
+        TestConsistency(tree);
+        tree.delete(1);
+        TestConsistency(tree);
+    }
+
+    private static void testDeletionLoop(int size, int iters){
+        boolean problem = false;
+        for(int i = 0; i < iters && problem == false; ++i)
+        {
+            problem = testDeletion2(size);
+        }
+    }
+    private static boolean testDeletion2(int size){
+        AVLTree tree = new AVLTree();
+        for(int i = 0; i < size; ++i) {
+            tree.insert(i, "test " + i);
+        }
+        TestConsistency(tree);
+
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < size; ++i) {
+            list.add(i);
+        }
+        Collections.shuffle(list);
+        boolean wasException = false;
+        boolean problem = false;
+        int i;
+        for (i = 0; i < size && problem == false; ++i) {
+            try {
+                tree.delete(list.get(i));
+                if (TestConsistency(tree) == false) {
+                    problem = true;
+                }
+            } catch (Exception e) {
+                wasException = true;
+                problem = true;
+                e.printStackTrace();
+            }
+        }
+        if(problem == true) {
+            String removed = "";
+            for (int j = 0; j <= i; ++j) {
+                removed += list.get(j) + " ";
+            }
+            System.out.println("order of removal: " + removed + ",");
+            try {
+                System.out.println(tree);
+            } catch (Exception E){
+                System.out.println("could not print tree");
+            }
+            return true;
+        }
+        return false;
+        }
+
+    private static void testOverallConsistency(int len) {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < len; ++i) {
+            list.add(i);
+        }
+
+        Collections.shuffle(list);
+        AVLTree tree = new AVLTree();
+        for (int i = 0; i < len; ++i) {
+            tree.insert(list.get(i), "miao");
+            if (TestConsistency(tree) == false) {
+                System.out.println(tree);
+                return;
+            }
+        }
+        String prev = "";
+
+        Collections.shuffle(list);
+        for (int i = 0; i < len; ++i) {
+            prev = tree.toString();
+            tree.delete(list.get(i));
+            if (TestConsistency(tree) == false) {
+                System.out.println(prev);
+                System.out.println(tree);
+                return;
+            }
+        }
+    }
+
+    private static AVLTree createTree(int[] items)
+    {
+        AVLTree tree = new AVLTree();
+        for(int i = 0; i < items.length; ++i) {
+            tree.insert(items[i], "test " + items[i]);
+        }
+        return tree;
+    }
+
+    private static AVLTree createTree(int size)
+    {
+        int[] items = new int[size];
+        for(int i = 0; i < items.length; ++i) {
+            items[i] = i;
+        }
+        return createTree(items);
+    }
+
+    static void curr()
+    {
+        AVLTree tree = createTree(10);
+        int[] rem = {5, 1}; //2 7
+        for(int i = 0; i < rem.length; ++i)
+        {
+            tree.delete(rem[i]);
+        }
+        System.out.println(tree);
+        tree.delete(2);
+        TestConsistency(tree);
+        System.out.println(tree);
+    }
+    private static void testLess(int size) {
+        AVLTree tree = createTree(20);
+        tree.delete(7);
+        tree.delete(15);
+        int sum = 0;
+        for(int i = 0; i < 20; ++i)
+        {
+            if(i != 7 && i != 15)
+                sum += i;
+            if(tree.less(i) != sum)
+            {
+                System.out.println("for " + i + " got "+ tree.less(i) + "expected " + sum);
+            }
+        }
+
+        tree = createTree(size);
+        AVLTree tree2 = new AVLTree();
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < size; ++i) {
+            list.add(i);
+        }
+        Collections.shuffle(list);
+        sum = 0;
+        int[] exp = new int[size];
+        for(int i = 1; i < size; ++i) {
+            exp[i] = exp[i - 1] + i;
+        }
+        for(int i = 0; i < size; ++i) {
+            int num = list.get(i);
+            tree.delete(num);
+            tree2.insert(num,"");
+            int a = 0;
+            int b = 0;
+            for(int j = 0; j < size; ++j){
+                try {
+                    a = tree.less(j);
+                }catch (Exception e) {
+                    System.out.println("error for key " + j + "in tree1");
+                    e.printStackTrace();
+                    System.out.println(tree);
+                    a = tree.less(j);
+                    return;
+                }
+                try {
+                    b = tree2.less(j);
+                }catch (Exception e) {
+                    System.out.println("error for key " + j + "in tree2");
+                    e.printStackTrace();
+                    System.out.println(tree2);
+                }
+                if(a + b != exp[j]){
+                    System.out.println("error for key " + j);
+                    return;
+                }
+            }
+        }
+    }
+
+    private static void testRank(int size) {
+        AVLTree tree = new AVLTree();
+        for(int i = 1; i < size; ++i)
+        {
+            tree.insert(i * 2, "" + i);
+        }
+//        System.out.println(tree);
+/**        for(int i = 1; i < size; ++i)
+ {
+ System.out.println("for " + i*2 + " " + tree.subtreeRoot(i * 2).key);
+ }
+ **/    for(int i = 1; i < size; ++i)
+        {
+            int res = Integer.parseInt(tree.select(i));
+            if(res != i)
+            {
+                System.out.println(i + "retruened " + res);
+            }
+        }
+    }
+
+
     public static void main(String[] args)
     {
         TestBasicInsertionAndLL();
@@ -183,5 +409,9 @@ public class Main {
         testInOrder();
         testSuccessorPredecessor();
         testDeletion();
+        testRootDeletion();
+        testDeletionLoop(100, 1000);
+        testRank(10);
+        testLess(50);
     }
 }

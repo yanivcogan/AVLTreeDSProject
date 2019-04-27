@@ -71,6 +71,10 @@ public class AVLTree {
 
     /**assumes tree is not empty. returns node with key if exists or its would-be parent**/
     private IAVLNode find(int key) {
+        return find(key, root);
+    }
+
+    private IAVLNode find(int key, AVLNode root) {
         IAVLNode itr = root;
         IAVLNode prev = null;
         while (itr.isRealNode()) {
@@ -186,18 +190,18 @@ public class AVLTree {
         int bf = calcBF(node);
         if(bf == 2)
         {
-            if(calcBF(node.left) == 1)
+            if(calcBF(node.left) == -1)
             {
-                rotateLL(node);
-            }else {
                 rotateLR(node);
+            }else {
+                rotateLL(node);
             }
         }else{
-            if(calcBF(node.right) == -1)
+            if(calcBF(node.right) == 1)
             {
-                rotateRR(node);
-            }else {
                 rotateRL(node);
+            }else {
+                rotateRR(node);
             }
         }
         return 1;
@@ -231,6 +235,19 @@ public class AVLTree {
         return rebalanceCount;
     }
 
+    private void updateMinMax(boolean changeMin)
+    {
+        AVLNode itr = root;
+        AVLNode next;
+        do
+        {
+            next = (changeMin)? itr.left : itr.right;
+        }while(next.isRealNode());
+        if(changeMin)
+            min = itr;
+        else
+            max = itr;
+    }
     /**
      * public int delete(int k)
      * <p>
@@ -240,19 +257,44 @@ public class AVLTree {
      * returns -1 if an item with key k was not found in the tree.
      */
     public int delete(int k) {
-        AVLNode nodeToDelete = (AVLNode)find(k);
+        if(size() == 0)
+        {
+            return -1;
+        }
+        boolean isMin = false;
+        boolean minOrMax = false;
+        AVLNode nodeToDelete;
+        if(k == min.key || k == max.key)
+        {
+            isMin = k == min.key;
+            nodeToDelete = (isMin)? min : max;
+            minOrMax = true;
+        }else{
+            nodeToDelete = (AVLNode)find(k);
+        }
         if(nodeToDelete.getKey() != k)
             return -1;
-        return delete(nodeToDelete);
+        int res = delete(nodeToDelete);
+        if(minOrMax)
+            updateMinMax(isMin);
+        return res;
     }
+
     private int delete(AVLNode node){
         AVLNode rebalanceFrom;
-        if(node.right.key == AVLNode.VIRTUAL_NODE && node.left.key == AVLNode.VIRTUAL_NODE)
+        if(node.right.key == AVLNode.VIRTUAL_NODE && node.left.key == AVLNode.VIRTUAL_NODE) {
             rebalanceFrom = deleteLeaf(node);
-        else if(node.right.key == AVLNode.VIRTUAL_NODE || node.left.key == AVLNode.VIRTUAL_NODE)
+        }else if(node.right.key == AVLNode.VIRTUAL_NODE || node.left.key == AVLNode.VIRTUAL_NODE) {
+            if(node == root)
+            {
+                root = node.right.isRealNode()? node.right : node.left;
+                root.parent = null;
+                return 0;
+            }
             rebalanceFrom = deleteSingleChildNode(node);
-        else
+        } else {
             rebalanceFrom = deleteDoubleChildNode(node);
+        }
         return fixUpward(rebalanceFrom);
     }
 
@@ -448,6 +490,13 @@ public class AVLTree {
         return root.size;
     }
 
+    //finds the i-th smallest item in the given subtree
+    public String select(int i, AVLNode node) {
+        if(i == node.lSize() + 1)
+            return node.value;
+        return (i <= node.lSize())? select(i, node.left) : select(i - node.lSize() - 1, node.right);
+    }
+
     /**
      * public string select(int i)
      * <p>
@@ -459,10 +508,69 @@ public class AVLTree {
      * precondition: size() >= i > 0
      * postcondition: none
      */
+
     public String select(int i) {
-        return null;
+        if (size() == 0)
+            return null;
+        if(i > root.lSize())
+        {
+            return select(i, root);
+        }
+        AVLNode itr = min;
+        while(i > itr.lSize() + 1)
+        {
+            itr = itr.parent;
+        }
+        return select(i, itr);
     }
 
+    public AVLNode subtreeRoot(int k) {
+        AVLNode itr;
+        if (k >= root.key) {
+            itr = root;
+            while (itr.key < k) {
+                itr = itr.right;
+            }
+        } else {
+            itr = min;
+            while (itr.key < k) {
+                itr = itr.parent;
+            }
+            itr = (itr.key > k)? itr.left : itr;
+        }
+        return itr;
+    }
+
+/**    public String select(int i) {
+        if (size() == 0)
+            return null;
+        int curRank = 0;
+        AVLNode itr = min;
+        if(i < root.rSize() + 1)
+        {
+            while(i < itr.rSize() + 1)
+            {
+                itr = itr.parent;
+            }
+        }else{
+            itr = root;
+        }
+        curRank = itr.rSize() + 1;
+        while(true)
+        {
+            if(curRank + itr.rSize() < i) {
+                itr = itr.right;
+            }else{
+                curRank += itr.rSize();
+                if(curRank == i)
+                {
+                    return itr.value;
+                }
+                itr = itr.left;
+            }
+        }
+    }
+**/
 
     /**
      * public int less(int i)
@@ -474,8 +582,56 @@ public class AVLTree {
      * postcondition: none
      */
     public int less(int i) {
-        return 0;
+        if (size() == 0 || i < min.key) {
+            return 0;
+        }
+        if(i == min.key)
+        {
+            return i;
+        }
+        if (i >= max.key) {
+            return root.sumSubtreeKeys;
+        }
+        AVLNode subRoot = subtreeRoot(i);
+        int sum = i >= root.key ? root.sumSubtreeKeys - subRoot.sumSubtreeKeys : 0;
+        AVLNode itr = subRoot;
+        while((i > itr.key && itr.right.isRealNode()) || (i < itr.key && itr.left.isRealNode()))
+        {
+            if(itr.key < i)
+            {
+                sum += itr.left.sumSubtreeKeys;
+                sum = itr.key < i? sum + itr.key : sum;
+                itr = itr.right;
+            }else{
+                itr = itr.left;
+            }
+        }
+        if(itr.key <= i) {
+            return sum + itr.sumSubtreeKeys - itr.right.sumSubtreeKeys;
+        }else{
+            return sum + itr.left.sumSubtreeKeys;
+        }
     }
+  /**        boolean added = insert(i, "") != -1;
+        int sum = 0;
+        AVLNode itr = root;
+        while(itr.key != i)
+        {
+            if(itr.key > i)
+            {
+                sum += itr.right.sumSubtreeKeys;
+                itr = itr.left;
+            }else{
+                itr = itr.right;
+            }
+        }
+        sum += itr.right.sumSubtreeKeys + i;
+        if(added)
+        {
+            delete(itr);
+        }
+        return sum;
+    }**/
 
     /**used in getArray**/
     public void getArrayRec(AVLNode node, ArrayList<AVLNode> lst)
@@ -566,6 +722,8 @@ public class AVLTree {
             this.parent = parent;
             left = new AVLNode(this);
             right = new AVLNode(this);
+            size = 1;
+            sumSubtreeKeys = key;
         }
 
         public int getKey() {
@@ -620,6 +778,10 @@ public class AVLTree {
         public int getHeight() {
             return height;
         }
+        public int rSize() { return size - left.size - 1; }
+        public int lSize() {
+            return size - right.size - 1;
+        }
         public int calcHeight()
         {
             if(key == VIRTUAL_NODE){
@@ -633,22 +795,7 @@ public class AVLTree {
         {
             this.setHeight(calcHeight());
             size = right.size + left.size + 1;
-        }
-
-        //calculates node's height by checking its children's heights. if changed is not null,
-        // writes in it if the height changed or not. maybe this parameter is not necessary as we always need to go
-        // all the way to the root after insert\delete to update size. kept it for now.
-        public int calcHeight(Boolean changed)
-        {
-            if(isRealNode())
-            {
-                int oldHeight = height;
-                height = Math.max(left.height, right.height) + 1;
-                if (changed != null) {
-                    changed = height != oldHeight;
-                }
-            }
-            return height;
+            sumSubtreeKeys = Math.max(left.sumSubtreeKeys, 0) + Math.max(right.sumSubtreeKeys, 0) + key;
         }
 
         /**
