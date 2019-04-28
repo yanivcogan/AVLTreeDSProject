@@ -129,6 +129,7 @@ public class Main {
     }
     private static void testInOrder(){
         AVLTree tree = new AVLTree();
+        assert Arrays.equals(tree.keysToArray(), new int[0]);
         int items[] = {1, 3, 2, 4};
         for(int i = 0; i < items.length; ++i) {
             tree.insert(items[i], "miao " + i);
