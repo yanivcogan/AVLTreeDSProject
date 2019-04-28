@@ -137,9 +137,6 @@ public class Main {
         assert Arrays.equals(tree.keysToArray(), keysInOrder);
         String [] valuesInOrder = {"miao 0", "miao 2", "miao 1", "miao 3"};
         assert Arrays.equals(tree.infoToArray(), valuesInOrder);
-        System.out.println(Arrays.equals(tree.infoToArray(), valuesInOrder));
-        System.out.println(Arrays.toString(tree.keysToArray()));
-        System.out.println(Arrays.toString(tree.infoToArray()));
     }
 
     private static void testSuccessorPredecessor(){

@@ -1,3 +1,5 @@
+import jdk.nashorn.internal.runtime.ECMAException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -403,14 +405,35 @@ public class AVLTree {
 
     }
 
-    private AVLNode[] inOrderScan(){
-        return inOrderScanRec(root, new ArrayList<AVLNode>()).toArray(new AVLNode[0]);
+    /**
+     * adds an object to an array in the first available position
+     * @param arr - a non-full array
+     * @param o - the object to be added
+     */
+    private void addToArrayAtFirstNull(Object[] arr, Object o) {
+        for(int i = 0; i < arr.length; i++){
+            if(arr[i] == null) {
+                arr[i] = o;
+                return;
+            }
+        }
+        //throw new Exception("the array is already full");
     }
-    private List<AVLNode> inOrderScanRec(AVLNode node, List<AVLNode> scannedSoFar){
+    private AVLNode[] inOrderScan(){
+        return inOrderScanRec(root, new AVLNode[this.size()]);
+    }
+
+    /**
+     * recuresibely iterates over the nodes in the subtree (int-order) beginning in the supplied node, and adding them to an array
+     * @param node - the node to scan from
+     * @param scannedSoFar - an array of all nodes scanned so far
+     * @return
+     */
+    private AVLNode[] inOrderScanRec(AVLNode node, AVLNode[] scannedSoFar){
         if(node.key == AVLNode.VIRTUAL_NODE)
             return scannedSoFar;
         inOrderScanRec(node.left, scannedSoFar);
-        scannedSoFar.add(node);
+        addToArrayAtFirstNull(scannedSoFar, node);
         inOrderScanRec(node.right, scannedSoFar);
         return scannedSoFar;
     }
@@ -422,7 +445,13 @@ public class AVLTree {
      * or an empty array if the tree is empty.
      */
     public int[] keysToArray() {
-        return Arrays.stream(this.inOrderScan()).mapToInt(AVLNode::getKey).toArray();
+        //this is the correct way to extract a single field from an array of objects in Java, but we weren't sure if it would be allowed.
+        //return Arrays.stream(this.inOrderScan()).mapToInt(AVLNode::getKey).toArray();
+        AVLNode[] inOrder = this.inOrderScan();
+        int[] keys = new int[inOrder.length];
+        for(int i = 0; i < inOrder.length; i++)
+            keys[i] = inOrder[i].getKey();
+        return keys;
     }
 
     /**
@@ -433,7 +462,13 @@ public class AVLTree {
      * or an empty array if the tree is empty.
      */
     public String[] infoToArray() {
-        return Arrays.stream(this.inOrderScan()).map(AVLNode::getValue).toArray(String[]::new);
+        //this is the correct way to extract a single field from an array of objects in Java, but we weren't sure if it would be allowed.
+        //return Arrays.stream(this.inOrderScan()).map(AVLNode::getValue).toArray(String[]::new);
+        AVLNode[] inOrder = this.inOrderScan();
+        String[] info = new String[inOrder.length];
+        for(int i = 0; i < inOrder.length; i++)
+            info[i] = inOrder[i].getValue();
+        return info;
     }
 
     /**
