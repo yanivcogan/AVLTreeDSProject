@@ -166,7 +166,7 @@ public class Main {
             assert AVLTree.successor(tree.searchNode(i)).getKey() == i+1;
         }
         for(int i = 2; i <= items.length; ++i) {
-            assert AVLTree.predecesoor(tree.searchNode(i)).getKey() == i-1;
+            assert AVLTree.predecessor(tree.searchNode(i)).getKey() == i-1;
         }
     }
     private static void testDeletion(){
@@ -184,6 +184,14 @@ public class Main {
         //double child deletion
         tree.delete(8);
         TestConsistency(tree);
+        tree = new AVLTree();
+        int NewItems[] = {1, 2, 3};
+        for(int i = 0; i < NewItems.length; ++i) {
+            tree.insert(NewItems[i], "test " + NewItems[i]);
+        }
+        //root deletion
+        tree.delete(2);
+        assert tree.max == tree.getRoot();
     }
 
     private static void testRootDeletion(){

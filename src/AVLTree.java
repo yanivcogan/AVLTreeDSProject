@@ -349,6 +349,10 @@ public class AVLTree {
     private AVLNode deleteDoubleChildNode(AVLNode node)
     {
         AVLNode successor = successor(node);
+        //in case the node deleted in practice was the maximal one, make sure to fix the max pointer
+        //note - this cannot happen to the minimum, since it is the successor of no node.
+        if(successor.getKey() == max.getKey())
+            max = node;
         delete(successor);
         node.key = successor.key;
         node.value = successor.value;
@@ -431,7 +435,7 @@ public class AVLTree {
         return tempParent;
 
     }
-    public static AVLNode predecesoor(AVLNode node) {
+    public static AVLNode predecessor(AVLNode node) {
         if(node.left.getKey() != AVLNode.VIRTUAL_NODE)
             return AVLTree.maxInSubtree(node.left);
         //if the node doesn't have right child, search upwards, using two nodes
