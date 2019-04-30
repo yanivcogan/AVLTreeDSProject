@@ -198,19 +198,68 @@ public class Main {
         AVLTree tree = new AVLTree();
         tree.delete(10);
         tree.insert(1, "test1");
+        assert tree.min().equals("test1");
+        assert tree.min().equals("test1");
+
+
         TestConsistency(tree);
         tree.delete(1);
+        assert tree.min() == null;
+        assert tree.max() == null;;
+
+
         tree.insert(1, "test1");
-        tree.insert(2, "test1");
+        tree.insert(2, "test2");
+        assert tree.min().equals("test1");
+        assert tree.max().equals("test2");
         tree.delete(1);
+        assert tree.min().equals("test2");
+        assert tree.max().equals("test2");
         TestConsistency(tree);
         tree.delete(2);
+        assert tree.min() == null;
+        assert tree.max() == null;
+
         TestConsistency(tree);
-        tree.insert(2, "test1");
+        tree.insert(2, "test2");
         tree.insert(1, "test1");
         tree.delete(2);
+        assert tree.min().equals("test1");
+        assert tree.max().equals("test1");
         TestConsistency(tree);
+
         tree.delete(1);
+        assert tree.min() == null;
+        assert tree.max() == null;
+
+        tree.insert(2, "test2");
+        tree.insert(1, "test1");
+        tree.insert(3, "test3");
+        assert tree.min().equals("test1");
+        assert tree.max().equals("test3");
+        TestConsistency(tree);
+
+        tree.delete(1);
+        TestConsistency(tree);
+        assert tree.min().equals("test2");
+        assert tree.max().equals("test3");
+        TestConsistency(tree);
+
+        tree.insert(1, "test1");
+        assert tree.min().equals("test1");
+        assert tree.max().equals("test3");
+        TestConsistency(tree);
+
+        tree.delete(3);
+        assert tree.min().equals("test1");
+        assert tree.max().equals("test2");
+        TestConsistency(tree);
+
+        tree.insert(3, "test3");
+        tree.delete(2);
+        assert tree.min().equals("test1");
+        assert tree.max().equals("test3");
+        assert tree.size() == 2;
         TestConsistency(tree);
     }
 
@@ -221,6 +270,25 @@ public class Main {
             problem = testDeletion2(size);
         }
     }
+
+    private static void testConsistencyLoop(int size, int iters){
+        boolean problem = false;
+        for(int i = 0; i < iters && problem == false; ++i)
+        {
+            problem = testOverallConsistency(size);
+        }
+    }
+
+    private static List<Integer> randomList(int size)
+    {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < size; ++i) {
+            list.add(i);
+        }
+        Collections.shuffle(list);
+        return list;
+    }
+
     private static boolean testDeletion2(int size){
         AVLTree tree = new AVLTree();
         for(int i = 0; i < size; ++i) {
@@ -228,11 +296,10 @@ public class Main {
         }
         TestConsistency(tree);
 
-        List<Integer> list = new ArrayList<>();
-        for (int i = 0; i < size; ++i) {
-            list.add(i);
-        }
-        Collections.shuffle(list);
+        List<Integer> list = randomList(size);
+/**        for (int i = 0; i < size; ++i) {
+            System.out.println(list.get(i));
+        }*/
         boolean wasException = false;
         boolean problem = false;
         int i;
@@ -242,6 +309,7 @@ public class Main {
                 if (TestConsistency(tree) == false) {
                     problem = true;
                 }
+                assert tree.search(list.get(i)) == null;
             } catch (Exception e) {
                 wasException = true;
                 problem = true;
@@ -264,34 +332,32 @@ public class Main {
         return false;
         }
 
-    private static void testOverallConsistency(int len) {
-        List<Integer> list = new ArrayList<>();
-        for (int i = 0; i < len; ++i) {
-            list.add(i);
+    private static boolean testOverallConsistency(int size) {
+        AVLTree tree = createTree(size);
+        List<Integer> list = randomList(size);
+
+        for (int i = 0; i < size; ++i) {
+            int val = list.get(0);
+            tree.delete(list.get(0));
+            list.remove(0);
+            if(list.size() == 0)
+                return false;
+            assert tree.size() == list.size();
+            assert tree.min().equals("test "+Collections.min(list));
+            if(!tree.max().equals("test "+Collections.max(list))) {
+                System.out.println("max in list " + Collections.max(list));
+                System.out.println("max in tree " + tree.max());
+                for (int j = 0; j < i; ++j) {
+                    System.out.print(list.get(j) + " ");
+                }
+                return true;
+            }
+            assert tree.search(val) == null;
+            TestConsistency(tree);
+            }
+        return false;
         }
 
-        Collections.shuffle(list);
-        AVLTree tree = new AVLTree();
-        for (int i = 0; i < len; ++i) {
-            tree.insert(list.get(i), "miao");
-            if (TestConsistency(tree) == false) {
-                System.out.println(tree);
-                return;
-            }
-        }
-        String prev = "";
-
-        Collections.shuffle(list);
-        for (int i = 0; i < len; ++i) {
-            prev = tree.toString();
-            tree.delete(list.get(i));
-            if (TestConsistency(tree) == false) {
-                System.out.println(prev);
-                System.out.println(tree);
-                return;
-            }
-        }
-    }
 
     private static AVLTree createTree(int[] items)
     {
@@ -376,6 +442,11 @@ public class Main {
                 }
                 if(a + b != exp[j]){
                     System.out.println("error for key " + j);
+                    System.out.println(tree2);
+                    System.out.println(tree2.less(j));
+
+                    System.out.println(tree);
+                    System.out.println(tree.less(j));
                     return;
                 }
             }
@@ -399,10 +470,11 @@ public class Main {
             if(res != i)
             {
                 System.out.println(i + "retruened " + res);
+                return;
             }
         }
+        System.out.println("cool");
     }
-
 
     public static void main(String[] args)
     {
@@ -416,8 +488,9 @@ public class Main {
         testSuccessorPredecessor();
         testDeletion();
         testRootDeletion();
-        testDeletionLoop(100, 1000);
+        testDeletionLoop(10,500);
         testRank(10);
         testLess(50);
+        testConsistencyLoop(10, 500);
     }
 }

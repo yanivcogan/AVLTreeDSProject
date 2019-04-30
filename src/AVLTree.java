@@ -1,7 +1,6 @@
-import jdk.nashorn.internal.runtime.ECMAException;
+//import jdk.nashorn.internal.runtime.ECMAException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,23 +61,15 @@ public class AVLTree {
     public AVLNode searchNode(int k){
         return (AVLNode)find(k);
     };
+
     /**
-     * public int insert(int k, String i)
-     * <p>
-     * inserts an item with key k and info i to the AVL tree.
-     * the tree must remain valid (keep its invariants).
-     * returns the number of rebalancing operations, or 0 if no rebalancing operations were necessary.
-     * returns -1 if an item with key k already exists in the tree.
+     * assuming the tree is not empty, returns node with key key if it exists, or its would be parent if
+     * it were inserted, otherwise. if the tree is empty, a virtual node is returned.
      */
 
-    /**assumes tree is not empty. returns node with key if exists or its would-be parent**/
     private IAVLNode find(int key) {
-        return find(key, root);
-    }
-
-    private IAVLNode find(int key, AVLNode root) {
         IAVLNode itr = root;
-        IAVLNode prev = null;
+        IAVLNode prev = root;
         while (itr.isRealNode()) {
             if (itr.getKey() == key) {
                 return itr;
@@ -89,6 +80,15 @@ public class AVLTree {
         return prev;
     }
 
+    /**
+     * public int insert(int k, String i)
+     * <p>
+     * inserts an item with key k and info i to the AVL tree.
+     * the tree must remain valid (keep its invariants).
+     * returns the number of rebalancing operations, or 0 if no rebalancing operations were necessary.
+     * returns -1 if an item with key k already exists in the tree.
+     */
+
     public int insert(int k, String i) {
         if (empty()) {
             root = new AVLNode(k, i, null);
@@ -96,7 +96,7 @@ public class AVLTree {
             min = root;
             return 0;
         }
-        AVLNode itr = (AVLNode) find(k);
+        AVLNode itr = (AVLNode) find(k); //returns node with key k if it exists or its supposed parent otherwise
         if (itr.getKey() == k) {
             return KEY_EXISTS;
         }
@@ -109,6 +109,11 @@ public class AVLTree {
         return fixUpward(newNode);
     }
 
+    /**
+     * inserts newNode as parent's child according to BST properties.
+     * @param parent - node to become newNode's parent
+     * @param newNode - node to become parent's child
+     */
     private void insertChild(AVLNode parent, AVLNode newNode)
     {
         if (parent.getKey() > newNode.getKey()) {
@@ -121,18 +126,33 @@ public class AVLTree {
         newNode.update();
     }
 
+    /**
+     * inserts right as node's right child
+     * @param node - node to become right's parent
+     * @param right - node to become node's right child
+     */
     private void setRightChild(AVLNode node, AVLNode right)
     {
         node.right = right;
         right.parent = node;
     }
 
+    /**
+     * inserts left as node's left child
+     * @param node - node to become left's parent
+     * @param left - node to become node's left child
+     */
     private void setLeftChild(AVLNode node, AVLNode left)
     {
         node.left = left;
         left.parent = node;
     }
 
+    /**
+     * makes from's parent to's parent, and sets the parent accordingly (iff from.parent != null, iff from != root)
+     * @param from - node to be replaced as its parent's child
+     * @param to - node to become from's parent's child
+     */
     private void giveParent(AVLNode from, AVLNode to) {
         to.parent = from.parent;
         if (to.parent != null) {
@@ -144,6 +164,11 @@ public class AVLTree {
         }
     }
 
+    /**
+     * performs rotation as used in LL. rotates the subtree whose root is node, making its left child the new root
+     * and node the left child's right child.
+     * @param node - root of the subtree to be rotated
+     */
     private void rotateRight(AVLNode node)
     {
         AVLNode middle = node.left;
@@ -155,6 +180,11 @@ public class AVLTree {
         middle.update();
     }
 
+    /**
+     * performs rotation as used in RR. rotates the subtree whose root is node, making its right child the new root
+     * and node the right child's left child.
+     * @param node - root of the subtree to be rotated
+     */
     private void rotateLeft(AVLNode node)
     {
         AVLNode middle = node.right;
@@ -166,49 +196,81 @@ public class AVLTree {
         middle.update();
     }
 
-    private void rotateLL(AVLNode node)
+    /**
+     * performs LL rotation (equivalent to rotateRight)
+     * @param node - root of the subtree to be rotated
+     * @return number rebalancing operations performed
+     */
+    private int rotateLL(AVLNode node)
     {
         rotateRight(node);
-    }
-
-    private void rotateLR(AVLNode node)
-    {
-        rotateLeft(node.left);
-        rotateRight(node);
-    }
-
-    private void rotateRL(AVLNode node)
-    {
-        rotateRight(node.right);
-        rotateLeft(node);
-    }
-
-    private void rotateRR(AVLNode node)
-    {
-        rotateLeft(node);
-    }
-    /**return value is redundant right now.**/
-    private int Balance(AVLNode node) {
-        int bf = calcBF(node);
-        if(bf == 2)
-        {
-            if(calcBF(node.left) == -1)
-            {
-                rotateLR(node);
-            }else {
-                rotateLL(node);
-            }
-        }else{
-            if(calcBF(node.right) == 1)
-            {
-                rotateRL(node);
-            }else {
-                rotateRR(node);
-            }
-        }
         return 1;
     }
 
+    /**
+     * performs LR rotation, making node's left childs's right child the new root of the subtree,
+     * and sets node and node's left child as its children
+     * @param node - root of the subtree to be rotated
+     * @return number rebalancing operations performed
+     */
+    private int rotateLR(AVLNode node)
+    {
+        rotateLeft(node.left);
+        rotateRight(node);
+        return 2;
+    }
+
+    /**
+     * performs RL rotation, making node's right childs's left child the new root of the subtree,
+     * and sets node and node's right child as its children
+     * @param node - root of the subtree to be rotated
+     * @return number rebalancing operations performed
+     */
+    private int rotateRL(AVLNode node)
+    {
+        rotateRight(node.right);
+        rotateLeft(node);
+        return 2;
+    }
+
+    /**
+     * performs RR rotation (equivalent to rotateLeft)
+     * @param node - root of the subtree to be rotated
+     * @return number rebalancing operations performed
+     */
+    private int rotateRR(AVLNode node)
+    {
+        rotateLeft(node);
+        return 1;
+    }
+
+    /**
+     * uses rotations to restore the AVL property if node's balance factor is >1 or <-1
+     * @param node - root of the subtree to be balanced
+     * @return number rebalancing operations performed
+     */
+    private int Balance(AVLNode node) {
+        int bf = calcBF(node);
+        if(bf == 2) {
+            if (calcBF(node.left) == -1) {
+                return rotateLR(node);
+            } else {
+                return rotateLL(node);
+            }
+        }else{
+            if(calcBF(node.right) == 1) {
+                return rotateRL(node);
+            }else {
+                return rotateRR(node);
+            }
+        }
+    }
+
+    /**
+     * calculates and returns node's balance factor.
+     * @param node
+     * @return node's balance factor. 0 for virtual nodes.
+     */
     public int calcBF(AVLNode node)
     {
         if(!node.isRealNode())
@@ -218,38 +280,54 @@ public class AVLTree {
         return node.left.height - node.right.height;
     }
 
-    private int fixUpward(AVLNode newNode) {
-        AVLNode itr = newNode;
+    /**
+     * restores the tree's properties after insertion \ deletion, using rebalancing operations if needed and updates
+     * (see AVLNode's update) nodes on the path from node to root.
+     * @param node node to start the iteration upwards from.
+     * @return number of rebalancing operations performed.
+     */
+    private int fixUpward(AVLNode node) {
+        AVLNode itr = node;
         int bf;
         int rebalanceCount = 0;
-        while(itr != null)
+        while(itr != null) //root's parent is null
         {
             AVLNode temp = itr.parent;
             itr.update();
             bf = calcBF(itr);
             if(bf > 1 || bf < -1)
             {
-                rebalanceCount++;
-                Balance(itr);
+                rebalanceCount += Balance(itr);
             }
             itr = temp;
         }
         return rebalanceCount;
     }
 
+    /**
+     * finds the current min\max and updates the appropriate field in the tree accordingly.
+     * used after min\max was deleted.
+     * @param changeMin true if min is to be updated, false if max.
+     */
     private void updateMinMax(boolean changeMin)
     {
         AVLNode itr = root;
         AVLNode next;
-        do
+        while(itr.isRealNode())
         {
             next = (changeMin)? itr.left : itr.right;
-        }while(next.isRealNode());
+            if(next.isRealNode() == false)
+                break;
+            itr = next;
+        }
         if(changeMin)
+        {
             min = itr;
-        else
+        } else {
             max = itr;
+        }
     }
+
     /**
      * public int delete(int k)
      * <p>
@@ -263,9 +341,11 @@ public class AVLTree {
         {
             return -1;
         }
-        boolean isMin = false;
-        boolean minOrMax = false;
+
+        boolean minOrMax = false; //was min or max deleted
+        boolean isMin = false; // was min deleted
         AVLNode nodeToDelete;
+
         if(k == min.key || k == max.key)
         {
             isMin = k == min.key;
@@ -274,6 +354,7 @@ public class AVLTree {
         }else{
             nodeToDelete = (AVLNode)find(k);
         }
+
         if(nodeToDelete.getKey() != k)
             return -1;
         int res = delete(nodeToDelete);
@@ -282,11 +363,16 @@ public class AVLTree {
         return res;
     }
 
+    /**
+     * deletes node from the tree and calls fixUpward to restore the tree's invariants.
+     * @param node node to be deleted.
+     * @return number of rebalancing operations performed.
+     */
     private int delete(AVLNode node){
         AVLNode rebalanceFrom;
-        if(node.right.key == AVLNode.VIRTUAL_NODE && node.left.key == AVLNode.VIRTUAL_NODE) {
+        if(node.right.isRealNode() == false && node.left.isRealNode() == false) {
             rebalanceFrom = deleteLeaf(node);
-        }else if(node.right.key == AVLNode.VIRTUAL_NODE || node.left.key == AVLNode.VIRTUAL_NODE) {
+        }else if(node.right.isRealNode() == false || node.left.isRealNode() == false) {
             if(node == root)
             {
                 root = node.right.isRealNode()? node.right : node.left;
@@ -310,9 +396,11 @@ public class AVLTree {
     private AVLNode deleteLeaf(AVLNode node)
     {
         AVLNode parentNode = node.parent;
-        //if case of attempted deletion from an empty tree, return null
         if(parentNode == null)
+        {
+            root = new AVLNode(null);
             return null;
+        }
         if(parentNode.left == node)
             parentNode.left = new AVLNode(parentNode);
         else
@@ -378,7 +466,7 @@ public class AVLTree {
      * or null if the tree is empty
      */
     public String min() {
-        return min.value;
+        return empty()? null : min.value;
     }
     /**
      * public String max()
@@ -387,7 +475,7 @@ public class AVLTree {
      * or null if the tree is empty
      */
     public String max() {
-        return max.value;
+        return empty()? null : max.value;
     }
 
     /**
@@ -420,6 +508,12 @@ public class AVLTree {
             curr = curr.right;
         return curr;
     }
+
+    /**
+     * returns node's successor (node with minimal key > node.key in the tree)
+     * @param node
+     * @return node's successor
+     */
     public static AVLNode successor(AVLNode node) {
         if(node.right.getKey() != AVLNode.VIRTUAL_NODE)
             return AVLTree.minInSubtree(node.right);
@@ -435,6 +529,12 @@ public class AVLTree {
         return tempParent;
 
     }
+
+    /**
+     * returns node's predecessor (node with largest key < node.key in the tree)
+     * @param node
+     * @return node's predecessor
+     */
     public static AVLNode predecessor(AVLNode node) {
         if(node.left.getKey() != AVLNode.VIRTUAL_NODE)
             return AVLTree.maxInSubtree(node.left);
@@ -470,7 +570,7 @@ public class AVLTree {
     }
 
     /**
-     * recuresibely iterates over the nodes in the subtree (int-order) beginning in the supplied node, and adding them to an array
+     * recuresively iterates over the nodes in the subtree (int-order) beginning in the supplied node, and adding them to an array
      * @param node - the node to scan from
      * @param scannedSoFar - an array of all nodes scanned so far
      * @return
@@ -529,13 +629,6 @@ public class AVLTree {
         return root.size;
     }
 
-    //finds the i-th smallest item in the given subtree
-    public String select(int i, AVLNode node) {
-        if(i == node.lSize() + 1)
-            return node.value;
-        return (i <= node.lSize())? select(i, node.left) : select(i - node.lSize() - 1, node.right);
-    }
-
     /**
      * public string select(int i)
      * <p>
@@ -551,6 +644,10 @@ public class AVLTree {
     public String select(int i) {
         if (size() == 0)
             return null;
+
+        //this function finds the first node on the path from min to root which is a parent of the requested node,
+        //and calls select(int,AVLNode) with this node. we could have always started from the root,
+        // but the complexity would be O(logn)
         if(i > root.lSize())
         {
             return select(i, root);
@@ -563,6 +660,27 @@ public class AVLTree {
         return select(i, itr);
     }
 
+    /**
+     * finds the value of the i-th smallest key in a given subtree
+     * assumes i <= node.getSubtreeSize()
+     * @param i
+     * @param node root of the given subtree
+     * @return value of the i-th smallest item
+     */
+    public String select(int i, AVLNode node) {
+        //we use the fact that given a root which is a parent of the requested item, we can determine
+        // if that item is on the node's left subtree or right subtree, and can calculate the
+        // item's rank in this smaller subtree. therefore we can find the item recursively.
+        if(i == node.lSize() + 1)
+            return node.value;
+        return (i <= node.lSize())? select(i, node.left) : select(i - node.lSize() - 1, node.right);
+    }
+
+    /**
+     * finds the minimal node on the path min-root or root-max with key >= k, assuming k <= max and k >= min
+     * @param k
+     * @return reference to the node described above
+     */
     public AVLNode subtreeRoot(int k) {
         AVLNode itr;
         if (k >= root.key) {
@@ -580,46 +698,6 @@ public class AVLTree {
         return itr;
     }
 
-/**    public String select(int i) {
-        if (size() == 0)
-            return null;
-        int curRank = 0;
-        AVLNode itr = min;
-        if(i < root.rSize() + 1)
-        {
-            while(i < itr.rSize() + 1)
-            {
-                itr = itr.parent;
-            }
-        }else{
-            itr = root;
-        }
-        curRank = itr.rSize() + 1;
-        while(true)
-        {
-            if(curRank + itr.rSize() < i) {
-                itr = itr.right;
-            }else{
-                curRank += itr.rSize();
-                if(curRank == i)
-                {
-                    return itr.value;
-                }
-                itr = itr.left;
-            }
-        }
-    }
-**/
-
-    /**
-     * public int less(int i)
-     * <p>
-     * Returns the sum of all keys which are less or equal to i
-     * i is not neccessarily a key in the tree
-     * <p>
-     * precondition: none
-     * postcondition: none
-     */
     public int less(int i) {
         if (size() == 0 || i < min.key) {
             return 0;
@@ -651,26 +729,6 @@ public class AVLTree {
             return sum + itr.left.sumSubtreeKeys;
         }
     }
-  /**        boolean added = insert(i, "") != -1;
-        int sum = 0;
-        AVLNode itr = root;
-        while(itr.key != i)
-        {
-            if(itr.key > i)
-            {
-                sum += itr.right.sumSubtreeKeys;
-                itr = itr.left;
-            }else{
-                itr = itr.right;
-            }
-        }
-        sum += itr.right.sumSubtreeKeys + i;
-        if(added)
-        {
-            delete(itr);
-        }
-        return sum;
-    }**/
 
     /**used in getArray**/
     public void getArrayRec(AVLNode node, ArrayList<AVLNode> lst)
