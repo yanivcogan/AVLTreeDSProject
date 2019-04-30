@@ -9,7 +9,7 @@ public class Main {
         tree.insert(3, "miao");
         assert tree.empty() == false;
         tree.insert(2, "miao");
-        tree.insert(1, "miao");
+        assert tree.insert(1, "miao") == 1;
         AVLTree.AVLNode node = tree.root;
         //System.out.println(tree);
         assert node.key == 2;
@@ -23,7 +23,7 @@ public class Main {
         tree.insert(3, "miao");
         assert tree.empty() == false;
         tree.insert(1, "miao");
-        tree.insert(2, "miao");
+        assert tree.insert(2, "miao") == 2;
         AVLTree.AVLNode node = tree.root;
         assert node.key == 2;
         assert node.left.key == 1;
@@ -34,7 +34,7 @@ public class Main {
         AVLTree tree = new AVLTree();
         tree.insert(1, "miao");
         tree.insert(2, "miao");
-        tree.insert(3, "miao");
+        assert tree.insert(3, "miao") == 1;
         AVLTree.AVLNode node = tree.root;
         assert node.key == 2;
         assert node.left.key == 1;
@@ -45,7 +45,7 @@ public class Main {
         AVLTree tree = new AVLTree();
         tree.insert(1, "miao");
         tree.insert(3, "miao");
-        tree.insert(2, "miao");
+        assert tree.insert(2, "miao") == 2;
         AVLTree.AVLNode node = tree.root;
         assert node.key == 2;
         assert node.left.key == 1;

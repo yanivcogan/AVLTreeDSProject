@@ -199,7 +199,7 @@ public class AVLTree {
     /**
      * performs LL rotation (equivalent to rotateRight)
      * @param node - root of the subtree to be rotated
-     * @return number rebalancing operations performed
+     * @return number of rebalancing operations performed (in this case 1)
      */
     private int rotateLL(AVLNode node)
     {
@@ -211,7 +211,7 @@ public class AVLTree {
      * performs LR rotation, making node's left childs's right child the new root of the subtree,
      * and sets node and node's left child as its children
      * @param node - root of the subtree to be rotated
-     * @return number rebalancing operations performed
+     * @return number of rebalancing operations performed (in this case 2)
      */
     private int rotateLR(AVLNode node)
     {
@@ -224,7 +224,7 @@ public class AVLTree {
      * performs RL rotation, making node's right childs's left child the new root of the subtree,
      * and sets node and node's right child as its children
      * @param node - root of the subtree to be rotated
-     * @return number rebalancing operations performed
+     * @return number of rebalancing operations performed (in this case 2)
      */
     private int rotateRL(AVLNode node)
     {
@@ -236,7 +236,7 @@ public class AVLTree {
     /**
      * performs RR rotation (equivalent to rotateLeft)
      * @param node - root of the subtree to be rotated
-     * @return number rebalancing operations performed
+     * @return number of rebalancing operations performed (in this case 1)
      */
     private int rotateRR(AVLNode node)
     {
@@ -247,7 +247,7 @@ public class AVLTree {
     /**
      * uses rotations to restore the AVL property if node's balance factor is >1 or <-1
      * @param node - root of the subtree to be balanced
-     * @return number rebalancing operations performed
+     * @return number of rebalancing operations performed
      */
     private int Balance(AVLNode node) {
         int bf = calcBF(node);
@@ -570,7 +570,7 @@ public class AVLTree {
     }
 
     /**
-     * recuresively iterates over the nodes in the subtree (int-order) beginning in the supplied node, and adding them to an array
+     * recuresively iterates over the nodes in the subtree (in-order) beginning in the supplied node, and adding them to an array
      * @param node - the node to scan from
      * @param scannedSoFar - an array of all nodes scanned so far
      * @return
