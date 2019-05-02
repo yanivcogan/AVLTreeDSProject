@@ -373,12 +373,6 @@ public class AVLTree {
         if(node.right.isRealNode() == false && node.left.isRealNode() == false) {
             rebalanceFrom = deleteLeaf(node);
         }else if(node.right.isRealNode() == false || node.left.isRealNode() == false) {
-            if(node == root)
-            {
-                root = node.right.isRealNode()? node.right : node.left;
-                root.parent = null;
-                return 0;
-            }
             rebalanceFrom = deleteSingleChildNode(node);
         } else {
             rebalanceFrom = deleteDoubleChildNode(node);
@@ -418,7 +412,13 @@ public class AVLTree {
     private AVLNode deleteSingleChildNode(AVLNode node)
     {
         AVLNode parentNode = node.parent;
-        AVLNode childNode = node.left.key != AVLNode.VIRTUAL_NODE ? node.left : node.right;
+        AVLNode childNode = node.left.isRealNode() ? node.left : node.right;
+        if(node == root)
+        {
+            root = childNode;
+            root.parent = null;
+            return root;
+        }
         if(parentNode.left == node)
             parentNode.left = childNode;
         else
@@ -551,22 +551,10 @@ public class AVLTree {
 
     }
 
-    /**
-     * adds an object to an array in the first available position
-     * @param arr - a non-full array
-     * @param o - the object to be added
-     */
-    private void addToArrayAtFirstNull(Object[] arr, Object o) {
-        for(int i = 0; i < arr.length; i++){
-            if(arr[i] == null) {
-                arr[i] = o;
-                return;
-            }
-        }
-        //throw new Exception("the array is already full");
-    }
     private AVLNode[] inOrderScan(){
-        return inOrderScanRec(root, new AVLNode[this.size()]);
+        //this is functionally an integer, keeping track of how much of the array has been field. We use an array wrap to make it mutable.
+        int[] lastFilledIndex = {0};
+        return inOrderScanRec(root, new AVLNode[this.size()], lastFilledIndex);
     }
 
     /**
@@ -575,12 +563,13 @@ public class AVLTree {
      * @param scannedSoFar - an array of all nodes scanned so far
      * @return
      */
-    private AVLNode[] inOrderScanRec(AVLNode node, AVLNode[] scannedSoFar){
+    private AVLNode[] inOrderScanRec(AVLNode node, AVLNode[] scannedSoFar, int[] mutableLastFilledIndex){
         if(node.key == AVLNode.VIRTUAL_NODE)
             return scannedSoFar;
-        inOrderScanRec(node.left, scannedSoFar);
-        addToArrayAtFirstNull(scannedSoFar, node);
-        inOrderScanRec(node.right, scannedSoFar);
+        inOrderScanRec(node.left, scannedSoFar, mutableLastFilledIndex);
+        scannedSoFar[mutableLastFilledIndex[0]] = node;
+        mutableLastFilledIndex[0]++;
+        inOrderScanRec(node.right, scannedSoFar, mutableLastFilledIndex);
         return scannedSoFar;
     }
 
@@ -755,9 +744,9 @@ public class AVLTree {
      * ! Do not delete or modify this - otherwise all tests will fail !
      */
     public interface IAVLNode {
-        public int getKey(); //returns node's key (for virtuval node return -1)
+        public int getKey(); //returns node's key (for virtual node return -1)
 
-        public String getValue(); //returns node's value [info] (for virtuval node return null)
+        public String getValue(); //returns node's value [info] (for virtual node return null)
 
         public void setLeft(IAVLNode node); //sets left child
 
@@ -809,6 +798,8 @@ public class AVLTree {
         public AVLNode(AVLNode parent) {
             key = VIRTUAL_NODE;
             height = VIRTUAL_HEIGHT;
+            size = 0;
+            sumSubtreeKeys = 0;
             this.parent = parent;
         }
 
