@@ -1,17 +1,14 @@
-//import jdk.nashorn.internal.runtime.ECMAException;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- *
  * AVLTree
  *
  * An implementation of a AVL Tree with
  * distinct integer keys and info
- *
  */
 
+/**
+ * Data Structure - Practical Exercise 1 - Implementing an AVLTree
+ * Programmed By: Tamar ??? (???), Moodle User: , Yaniv Cogan (208417204), Moodle User: cogan
+ */
 public class AVLTree {
     AVLNode root;
     AVLNode max;
@@ -24,18 +21,6 @@ public class AVLTree {
         root.setSubtreeSize(0);
         max = root;
         min = root;
-    }
-
-    /**
-     * TODO Don't forget to delete this!
-     * Prints the tree, starting with the root.
-     */
-    public String toString()
-    {
-        if (empty())
-            return "<empty tree>";
-        else
-            return root.print();
     }
 
     /**
@@ -57,16 +42,12 @@ public class AVLTree {
         IAVLNode itr = find(k);
         return itr.getKey() == k ? itr.getValue() : null;
     }
-    //TODO this is a temporary function used for testing - delete it later
-    public AVLNode searchNode(int k){
-        return (AVLNode)find(k);
-    };
+
 
     /**
      * assuming the tree is not empty, returns node with key key if it exists, or its would be parent if
      * it were inserted, otherwise. if the tree is empty, a virtual node is returned.
      */
-
     private IAVLNode find(int key) {
         IAVLNode itr = root;
         IAVLNode prev = root;
@@ -316,7 +297,7 @@ public class AVLTree {
         while(itr.isRealNode())
         {
             next = (changeMin)? itr.left : itr.right;
-            if(next.isRealNode() == false)
+            if(!next.isRealNode())
                 break;
             itr = next;
         }
@@ -370,9 +351,9 @@ public class AVLTree {
      */
     private int delete(AVLNode node){
         AVLNode rebalanceFrom;
-        if(node.right.isRealNode() == false && node.left.isRealNode() == false) {
+        if(!node.right.isRealNode() && !node.left.isRealNode()) {
             rebalanceFrom = deleteLeaf(node);
-        }else if(node.right.isRealNode() == false || node.left.isRealNode() == false) {
+        }else if(!node.right.isRealNode() || !node.left.isRealNode()) {
             rebalanceFrom = deleteSingleChildNode(node);
         } else {
             rebalanceFrom = deleteDoubleChildNode(node);
@@ -551,6 +532,9 @@ public class AVLTree {
 
     }
 
+    /**
+     * @return an ordered array of all nodes in the tree (Sorted by their keys)
+     */
     private AVLNode[] inOrderScan(){
         //this is functionally an integer, keeping track of how much of the array has been field. We use an array wrap to make it mutable.
         int[] lastFilledIndex = {0};
@@ -656,7 +640,7 @@ public class AVLTree {
      * @param node root of the given subtree
      * @return value of the i-th smallest item
      */
-    public String select(int i, AVLNode node) {
+    private String select(int i, AVLNode node) {
         //we use the fact that given a root which is a parent of the requested item, we can determine
         // if that item is on the node's left subtree or right subtree, and can calculate the
         // item's rank in this smaller subtree. therefore we can find the item recursively.
@@ -687,6 +671,12 @@ public class AVLTree {
         return itr;
     }
 
+    /**
+     * @param i = the maximal key to include in the sum
+     * @return the sum of all keys smaller than or equal to the provided parameter i.
+     * Operates at O(klog(k)), where k is the index of the node with the maximal key that's <= i.
+     * A more precise complexity analysis can be found in the external documentation
+     */
     public int less(int i) {
         if (size() == 0 || i < min.key) {
             return 0;
@@ -705,8 +695,7 @@ public class AVLTree {
         {
             if(itr.key < i)
             {
-                sum += itr.left.sumSubtreeKeys;
-                sum = itr.key < i? sum + itr.key : sum;
+                sum += itr.left.sumSubtreeKeys + itr.key;
                 itr = itr.right;
             }else{
                 itr = itr.left;
@@ -717,26 +706,6 @@ public class AVLTree {
         }else{
             return sum + itr.left.sumSubtreeKeys;
         }
-    }
-
-    /**used in getArray**/
-    public void getArrayRec(AVLNode node, ArrayList<AVLNode> lst)
-    {
-        if(!node.isRealNode())
-        {
-            return;
-        }
-        getArrayRec(node.left, lst);
-        lst.add(node);
-        getArrayRec(node.right, lst);
-    }
-
-    /**get array with all nodes, in order. for debugging.**/
-    public ArrayList<AVLNode> getArray()
-    {
-        ArrayList<AVLNode> arr = new ArrayList<>();
-        getArrayRec(root, arr);
-        return arr;
     }
 
     /**
@@ -885,158 +854,6 @@ public class AVLTree {
             size = right.size + left.size + 1;
             sumSubtreeKeys = Math.max(left.sumSubtreeKeys, 0) + Math.max(right.sumSubtreeKeys, 0) + key;
         }
-
-        /**
-         * TODO Don't forget to delete this!
-         * <p>
-         * Returns the text that represents this node in short (a few characters)
-         */
-        private String getPrintText()
-        {
-            if (!isRealNode())
-                return "Ø";
-            //return ""+key + ":" + value + ":"+rank;
-            return "" + key + "(" + value + ")";
-        }
-
-        /**
-         * TODO Don't forget to delete this!
-         * <p>
-         * Prints the node's subtree in a magnificent fashion
-         */
-        public String print()
-        {
-            StringBuilder representation = new StringBuilder();
-            String newLine = System.lineSeparator();
-            List<List<String>> lines = new ArrayList<List<String>>();
-            List<AVLNode> level = new ArrayList<AVLNode>();
-            List<AVLNode> next = new ArrayList<AVLNode>();
-
-            level.add(this);
-            int nn = 1;
-
-            int widest = 0;
-            int m1 = 0, m2 = 0, m3 = 0;
-            while (nn != 0)
-            {
-                List<String> line = new ArrayList<String>();
-
-                nn = 0;
-
-                for (AVLNode n : level)
-                {
-                    if (n == null)
-                    {
-                        line.add(null);
-
-                        next.add(null);
-                        next.add(null);
-                    } else
-                    {
-                        String aa = n.getPrintText();
-                        line.add(aa);
-                        if (aa.length() > widest)
-                            widest = aa.length();
-
-                        next.add(n.left);
-                        next.add(n.right);
-
-                        if (n.getLeft() != null)
-                            nn++;
-                        if (n.getRight() != null)
-                            nn++;
-                    }
-                }
-
-                if (widest % 2 == 1)
-                    widest++;
-
-                lines.add(line);
-
-                List<AVLNode> tmp = level;
-                level = next;
-                next = tmp;
-                next.clear();
-            }
-
-            int perpiece = lines.get(lines.size() - 1).size() * (widest + 4);
-            for (int i = 0; i < lines.size(); i++)
-            {
-                List<String> line = lines.get(i);
-                int hpw = (int) Math.floor(perpiece / 2f) - 1;
-
-                if (i > 0)
-                {
-                    for (int j = 0; j < line.size(); j++)
-                    {
-
-                        // split node
-                        char c = ' ';
-                        if (j % 2 == 1)
-                        {
-                            if (line.get(j - 1) != null)
-                            {
-                                c = (line.get(j) != null) ? '┴' : '┘';
-                            } else
-                            {
-                                if (line.get(j) != null)
-                                    c = '└';
-                            }
-                        }
-                        representation.append(c);
-
-                        // lines and spaces
-                        if (line.get(j) == null)
-                        {
-                            for (int k = 0; k < perpiece - 1; k++)
-                            {
-                                representation.append(" ");
-                            }
-                        } else
-                        {
-
-                            for (int k = 0; k < hpw; k++)
-                            {
-                                representation.append(j % 2 == 0 ? " " : "─");
-                            }
-                            representation.append(j % 2 == 0 ? "┌" : "┐");
-                            for (int k = 0; k < hpw; k++)
-                            {
-                                representation.append(j % 2 == 0 ? "─" : " ");
-                            }
-                        }
-                    }
-                    representation.append(newLine);
-                }
-
-                // print line of numbers
-                for (int j = 0; j < line.size(); j++)
-                {
-
-                    String f = line.get(j);
-                    if (f == null)
-                        f = "";
-                    int gap1 = (int) Math.ceil(perpiece / 2f - f.length() / 2f);
-                    int gap2 = (int) Math.floor(perpiece / 2f - f.length() / 2f);
-
-                    // a number
-                    for (int k = 0; k < gap1; k++)
-                    {
-                        representation.append(" ");
-                    }
-                    representation.append(f);
-                    for (int k = 0; k < gap2; k++)
-                    {
-                        representation.append(" ");
-                    }
-                }
-                representation.append(newLine);
-
-                perpiece /= 2;
-            }
-            return representation.toString();
-        }
-
     }
 }
 
